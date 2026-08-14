@@ -1,0 +1,87 @@
+// Ported to TypeScript from the Microsoft Foundry samples
+// (https://github.com/microsoft-foundry/foundry-samples), MIT License.
+
+/**
+ * Foundry Memory hosted agent sample.
+ *
+ * This agent uses {@link FoundryMemoryProvider} to give an otherwise stateless
+ * hosted agent persistent, semantic memory backed by an Azure AI Foundry
+ * Memory Store. The store itself is provisioned once via `src/provision.ts`
+ * and its name is passed in through the `MEMORY_STORE_NAME` environment
+ * variable.
+ */
+
+import { Agent } from '@polymind-inc/agent-framework';
+import type { ContextProvider } from '@polymind-inc/agent-framework';
+import { serve } from '@polymind-inc/agent-framework/agentserver/node';
+import { FoundryChatClient, FoundryMemoryProvider } from '@polymind-inc/agent-framework/foundry';
+import { hostedUserScope, ResponsesHostServer } from '@polymind-inc/agent-framework/foundry/hosting';
+
+/**
+ * Returns an env var value, treating un-substituted `${VAR}` / `{{VAR}}` placeholders as empty.
+ *
+ * Hosted-agent runtimes that perform template substitution on `agent.yaml` /
+ * `agent.manifest.yaml` may leave the literal `${VAR}` or `{{VAR}}` text when
+ * `VAR` is undefined at deploy time (e.g. CI smoke runs that don't provision a
+ * memory store). The sample should treat that case the same as "unset" so the
+ * agent still starts and responds — just without the optional memory capability.
+ */
+function resolvedEnv(name: string): string {
+  const value = (process.env[name] ?? '').trim();
+  if ((value.startsWith('${') && value.endsWith('}')) || (value.startsWith('{{') && value.endsWith('}}'))) {
+    return '';
+  }
+  return value;
+}
+
+const modelName = process.env.AZURE_AI_MODEL_DEPLOYMENT_NAME ?? process.env.FOUNDRY_MODEL_NAME;
+if (!modelName) {
+  throw new Error(
+    'Model deployment name is not configured. Set AZURE_AI_MODEL_DEPLOYMENT_NAME or FOUNDRY_MODEL_NAME.',
+  );
+}
+
+const projectEndpoint = process.env.FOUNDRY_PROJECT_ENDPOINT;
+if (!projectEndpoint) {
+  throw new Error('Set FOUNDRY_PROJECT_ENDPOINT to your Foundry project endpoint.');
+}
+
+const memoryStoreName = resolvedEnv('MEMORY_STORE_NAME');
+const contextProviders: ContextProvider[] = [];
+if (!memoryStoreName) {
+  console.warn('MEMORY_STORE_NAME is not set; memory will not be available to the agent.');
+} else {
+  contextProviders.push(
+    new FoundryMemoryProvider({
+      projectEndpoint,
+      memoryStoreName,
+      // Scope memories by user id, so each user that interacts with the agent
+      // has their own isolated memories in the store (assuming those users are
+      // granted access). `hostedUserScope()` reads the end-user id the hosting
+      // infrastructure injects per request, so one provider instance serves
+      // every user without ever mixing two users' memories.
+      scope: hostedUserScope(),
+    }),
+  );
+}
+
+const agent = new Agent({
+  client: new FoundryChatClient({
+    projectEndpoint,
+    target: { modelDeployment: modelName },
+  }),
+  instructions:
+    'You are a helpful assistant that remembers facts the user has shared ' +
+    'across conversations. Relevant memories from previous interactions are ' +
+    'automatically provided to you in the system context. Use them when ' +
+    'answering, and acknowledge when you are relying on remembered facts.',
+  contextProviders,
+  // History will be managed by the hosting infrastructure, thus there
+  // is no need to store history by the service. Learn more at:
+  // https://developers.openai.com/api/reference/resources/responses/methods/create
+  defaultOptions: { store: false },
+});
+
+const server = new ResponsesHostServer({ agent });
+const { port } = await serve(server);
+console.log(`Agent host listening on 0.0.0.0:${port}`);

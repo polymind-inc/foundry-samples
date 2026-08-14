@@ -1,0 +1,19 @@
+# Foundry Hosted Agent definition.
+# Schema: microsoft/AgentSchema ContainerAgent.yaml
+kind: hosted
+name: agent-framework-agent-with-foundry-toolbox-responses-ts
+description: An Agent Framework (TypeScript) agent with Foundry Toolbox integration.
+
+protocols:
+  - protocol: responses
+    version: 2.0.0
+
+resources:
+  cpu: '0.5'
+  memory: 1Gi
+
+environment_variables:
+  - name: AZURE_AI_MODEL_DEPLOYMENT_NAME
+    value: ${AZURE_AI_MODEL_DEPLOYMENT_NAME}
+  - name: FOUNDRY_TOOLBOX_NAME
+    value: ${FOUNDRY_TOOLBOX_NAME}

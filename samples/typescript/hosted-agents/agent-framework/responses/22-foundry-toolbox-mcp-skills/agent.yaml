@@ -1,0 +1,21 @@
+# Foundry Hosted Agent definition.
+# Schema: microsoft/AgentSchema ContainerAgent.yaml
+kind: hosted
+name: agent-framework-agent-foundry-toolbox-mcp-skills-responses-ts
+description: An Agent Framework (TypeScript) agent that discovers MCP-based skills from a Foundry Toolbox and exposes them via a skills provider with progressive disclosure (advertise, load).
+
+protocols:
+  - protocol: responses
+    version: 2.0.0
+
+resources:
+  cpu: '0.5'
+  memory: 1Gi
+
+environment_variables:
+  - name: AZURE_AI_MODEL_DEPLOYMENT_NAME
+    value: ${AZURE_AI_MODEL_DEPLOYMENT_NAME}
+  # The toolbox is registered in the project; the agent only needs its name.
+  # (The Python sample takes a full TOOLBOX_ENDPOINT URL instead — see README.)
+  - name: FOUNDRY_TOOLBOX_NAME
+    value: ${FOUNDRY_TOOLBOX_NAME}

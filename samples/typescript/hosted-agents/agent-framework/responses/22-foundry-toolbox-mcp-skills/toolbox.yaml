@@ -1,0 +1,34 @@
+# toolbox.yaml
+# Defines the toolbox this agent consumes. Its purpose is to serve the two
+# Agent Skills below over MCP.
+#
+# NOTE: `azd ai toolbox create` requires at least one `tools` or `connections`
+# entry — a skills-only toolbox cannot be created directly. We therefore include
+# one connectionless built-in tool (`code_interpreter`) purely to satisfy that
+# requirement. The agent constructs the toolbox with `loadTools: false`
+# (see src/main.ts), so this tool is never surfaced to the model — only the
+# skills are. The toolbox is effectively skills-only from the agent's perspective.
+#
+# The skills referenced below must already exist in the same Foundry project —
+# create them first from the bundled skills/ folder:
+#
+#   azd ai skill create support-style     --file ./skills/support-style/SKILL.md     --no-prompt
+#   azd ai skill create escalation-policy --file ./skills/escalation-policy/SKILL.md --no-prompt
+#
+# Then create the toolbox once from this file:
+#
+#   azd ai toolbox create maf-skills-toolbox --from-file ./toolbox.yaml --no-prompt
+#
+# Set FOUNDRY_TOOLBOX_NAME to the toolbox name you chose (maf-skills-toolbox
+# above). The agent derives the MCP endpoint from FOUNDRY_PROJECT_ENDPOINT and
+# that name, connects at runtime, and discovers these skills over MCP.
+description: Contoso Outdoors support skills served over MCP
+# Placeholder connectionless tool — required by the CLI, hidden by loadTools: false.
+tools:
+  - type: code_interpreter
+    container: { type: auto }
+    name: code_interpreter
+# Agent Skills discovered over MCP via skill://index.json.
+skills:
+  - name: support-style       # follows the skill's default version
+  - name: escalation-policy   # follows the skill's default version

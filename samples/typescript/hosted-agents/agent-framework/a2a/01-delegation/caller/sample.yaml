@@ -1,0 +1,5 @@
+name: A2A Delegation Hosted Agent
+description: Hosted Agent Framework sample that delegates tasks to a remote agent over the Agent-to-Agent (A2A) protocol via a Foundry Toolbox A2A connection.
+
+build: "npm install && npm run build"
+validate: "npm run typecheck"

@@ -1,0 +1,27 @@
+{
+  "name": "af-responses-11-azure-search-rag",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "dev": "tsx --env-file-if-exists=.env src/main.ts",
+    "build": "tsdown",
+    "start": "node --env-file-if-exists=.env dist/main.mjs",
+    "provision": "tsx --env-file-if-exists=.env src/provision-index.ts",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@azure/identity": "^4.13.1",
+    "@azure/search-documents": "^13.0.0",
+    "@polymind-inc/agent-framework": "^0.3.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "tsdown": "^0.22.14",
+    "tsx": "^4.23.9",
+    "typescript": "^5.9.3"
+  }
+}

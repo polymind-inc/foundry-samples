@@ -1,0 +1,11 @@
+# The build stage needs package*.json, tsconfig.json, tsdown.config.ts, and src/
+# (plus bundled assets like skills/ where the Dockerfile copies them) — keep
+# everything else out of the build context.
+node_modules/
+dist/
+.env
+.env.*
+*.md
+agent.yaml
+sample.yaml
+.gitignore

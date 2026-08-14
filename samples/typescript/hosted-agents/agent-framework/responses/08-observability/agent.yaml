@@ -1,0 +1,21 @@
+# Foundry Hosted Agent definition.
+# Schema: microsoft/AgentSchema ContainerAgent.yaml
+kind: hosted
+name: agent-framework-agent-observability-responses-ts
+description: An instrumented Agent Framework (TypeScript) agent hosted by Foundry.
+
+protocols:
+  - protocol: responses
+    version: 2.0.0
+
+resources:
+  cpu: '0.5'
+  memory: 1Gi
+
+environment_variables:
+  - name: AZURE_AI_MODEL_DEPLOYMENT_NAME
+    value: ${AZURE_AI_MODEL_DEPLOYMENT_NAME}
+  # Opts in to recording prompts, completions and tool arguments on spans. The TypeScript
+  # framework honors the same switch as Python, so one env var configures a polyglot deployment.
+  - name: ENABLE_SENSITIVE_DATA
+    value: 'true'

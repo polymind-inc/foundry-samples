@@ -1,0 +1,25 @@
+# Foundry Hosted Agent definition.
+# Schema: microsoft/AgentSchema ContainerAgent.yaml
+kind: hosted
+name: agent-framework-agent-downstream-azure-responses-ts
+description: An Agent Framework (TypeScript) hosted agent that operates on Azure Blob Storage and Service Bus using its per-agent Microsoft Entra identity. Demonstrates the manual RBAC assignment pattern for Azure data-plane services.
+
+protocols:
+  - protocol: responses
+    version: 2.0.0
+
+resources:
+  cpu: '0.5'
+  memory: 1Gi
+
+environment_variables:
+  - name: AZURE_AI_MODEL_DEPLOYMENT_NAME
+    value: ${AZURE_AI_MODEL_DEPLOYMENT_NAME}
+  - name: AZURE_STORAGE_ACCOUNT_NAME
+    value: ${AZURE_STORAGE_ACCOUNT_NAME}
+  - name: AZURE_STORAGE_CONTAINER_NAME
+    value: ${AZURE_STORAGE_CONTAINER_NAME}
+  - name: AZURE_SERVICEBUS_FQDN
+    value: ${AZURE_SERVICEBUS_FQDN}
+  - name: AZURE_SERVICEBUS_QUEUE_NAME
+    value: ${AZURE_SERVICEBUS_QUEUE_NAME}

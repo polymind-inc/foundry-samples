@@ -1,0 +1,25 @@
+{
+  "name": "af-responses-02-tools",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "dev": "tsx --env-file-if-exists=.env src/main.ts",
+    "build": "tsdown",
+    "start": "node --env-file-if-exists=.env dist/main.mjs",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@polymind-inc/agent-framework": "^0.3.0",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "tsdown": "^0.22.14",
+    "tsx": "^4.23.9",
+    "typescript": "^5.9.3"
+  }
+}

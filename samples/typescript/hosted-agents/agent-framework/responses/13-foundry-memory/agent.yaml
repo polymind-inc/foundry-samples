@@ -1,0 +1,19 @@
+# Foundry Hosted Agent definition.
+# Schema: microsoft/AgentSchema ContainerAgent.yaml
+kind: hosted
+name: agent-framework-agent-foundry-memory-responses-ts
+description: An Agent Framework (TypeScript) agent with persistent semantic memory backed by an Azure AI Foundry Memory Store. Uses FoundryMemoryProvider to retrieve and store memories around each model invocation, allowing the agent to remember facts about a user across sessions.
+
+protocols:
+  - protocol: responses
+    version: 2.0.0
+
+resources:
+  cpu: '0.5'
+  memory: 1Gi
+
+environment_variables:
+  - name: AZURE_AI_MODEL_DEPLOYMENT_NAME
+    value: ${AZURE_AI_MODEL_DEPLOYMENT_NAME}
+  - name: MEMORY_STORE_NAME
+    value: ${MEMORY_STORE_NAME}

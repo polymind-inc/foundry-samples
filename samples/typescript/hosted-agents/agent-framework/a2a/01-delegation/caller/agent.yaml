@@ -1,0 +1,22 @@
+# Foundry Hosted Agent definition.
+# Schema: microsoft/AgentSchema ContainerAgent.yaml
+kind: hosted
+name: agent-framework-a2a-caller-responses-ts
+description: >-
+  An Agent Framework (TypeScript) hosted agent (Responses protocol) that
+  delegates tasks to a Foundry-hosted A2A executor agent through a Foundry
+  Toolbox A2A connection.
+
+protocols:
+  - protocol: responses
+    version: 2.0.0
+
+resources:
+  cpu: '0.5'
+  memory: 1Gi
+
+environment_variables:
+  - name: AZURE_AI_MODEL_DEPLOYMENT_NAME
+    value: ${AZURE_AI_MODEL_DEPLOYMENT_NAME}
+  - name: TOOLBOX_NAME
+    value: ${TOOLBOX_NAME}
