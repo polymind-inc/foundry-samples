@@ -19,12 +19,12 @@ The platform applies that policy to the agent at runtime. Omit the `policies` bl
 For a conceptual overview, see [Add a content safety guardrail to a hosted agent](https://learn.microsoft.com/en-us/azure/foundry/agents/how-to/add-hosted-agent-guardrails).
 
 > [!WARNING]
-> Don't rely on deploy-time validation to catch a bad policy ID. On many subscriptions an agent that points at a policy that doesn't exist deploys successfully and reports `active`, but **no content filtering is applied**: the guardrail fails open and harmful prompts reach the agent. Set `RAI_POLICY_RESOURCE_ID` in `.env` to a real policy ID and run [Verify the guardrail](#verify-the-guardrail) before you rely on this agent's content safety.
+> Don't rely on deploy-time validation to catch a bad policy ID. On many subscriptions an agent that points at a policy that doesn't exist deploys successfully and reports `active`, but **no content filtering is applied**: the guardrail fails open and harmful prompts reach the agent. Set `RAI_POLICY_RESOURCE_ID` in the active deployment environment to a real policy ID and run [Verify the guardrail](#verify-the-guardrail) before you rely on this agent's content safety.
 
 ## Prerequisites
 
 - Node.js >= 24
-- An [Azure AI Foundry project](https://learn.microsoft.com/en-us/azure/ai-foundry/) with a model deployment
+- A [Microsoft Foundry project](https://learn.microsoft.com/en-us/azure/foundry/) with a model deployment
 - Azure CLI signed in (`az login`) — auth uses `DefaultAzureCredential`
 - An RAI policy created on your Foundry resource, and its full ARM resource ID. To create one, see [Configure guardrails and controls](https://learn.microsoft.com/en-us/azure/foundry/guardrails/how-to-create-guardrails). The ARM resource ID has this form:
 
@@ -50,7 +50,9 @@ curl -X POST localhost:8088/responses -H 'content-type: application/json' -d '{"
 
 ## Deploy to Foundry
 
-Set `RAI_POLICY_RESOURCE_ID` in `.env` to your RAI policy's full ARM resource ID (the full ID, not the bare policy name). [agent.yaml](agent.yaml) consumes that value, so no manifest edit is required. Then build the self-contained bundle and the container image, and deploy with your preferred flow (Foundry portal, VS Code Foundry Toolkit, or `az`):
+Set `RAI_POLICY_RESOURCE_ID` in the active deployment environment to your RAI policy's full ARM resource ID (the full ID, not the bare policy name). For example, an `azd` deployment resolves the `${RAI_POLICY_RESOURCE_ID}` placeholder in [agent.yaml](agent.yaml) from the selected azd environment, commonly stored under `.azure/<environment>/.env`. This is separate from the sample-local `.env` file used by `npm run dev` and `npm start`.
+
+Then build the self-contained bundle and the container image, and deploy with your preferred flow (Foundry portal, VS Code Foundry Toolkit, or `az`):
 
 ```bash
 docker build -t content-safety-guardrail-agent .

@@ -6,19 +6,33 @@ import { serve } from '@polymind-inc/agent-framework/agentserver/node';
 import { FoundryChatClient } from '@polymind-inc/agent-framework/foundry';
 import { FoundryToolbox, ResponsesHostServer } from '@polymind-inc/agent-framework/foundry/hosting';
 
-const modelName = process.env.AZURE_AI_MODEL_DEPLOYMENT_NAME ?? process.env.FOUNDRY_MODEL_NAME;
+/**
+ * Returns an env var value, treating un-substituted `${VAR}` / `{{VAR}}` placeholders as empty.
+ *
+ * Hosted-agent runtimes may leave template text unchanged when a deployment
+ * variable is undefined. Treat it as unset so configuration errors fail fast.
+ */
+function resolvedEnv(name: string): string {
+  const value = (process.env[name] ?? '').trim();
+  if ((value.startsWith('${') && value.endsWith('}')) || (value.startsWith('{{') && value.endsWith('}}'))) {
+    return '';
+  }
+  return value;
+}
+
+const modelName = resolvedEnv('AZURE_AI_MODEL_DEPLOYMENT_NAME') || resolvedEnv('FOUNDRY_MODEL_NAME');
 if (!modelName) {
   throw new Error(
     'Model deployment name is not configured. Set AZURE_AI_MODEL_DEPLOYMENT_NAME or FOUNDRY_MODEL_NAME.',
   );
 }
 
-const projectEndpoint = process.env.FOUNDRY_PROJECT_ENDPOINT;
+const projectEndpoint = resolvedEnv('FOUNDRY_PROJECT_ENDPOINT');
 if (!projectEndpoint) {
   throw new Error('Set FOUNDRY_PROJECT_ENDPOINT to your Foundry project endpoint.');
 }
 
-const toolboxName = process.env.TOOLBOX_NAME;
+const toolboxName = resolvedEnv('TOOLBOX_NAME');
 if (!toolboxName) {
   throw new Error('Set TOOLBOX_NAME to the toolbox whose skills this agent should use.');
 }
@@ -44,7 +58,7 @@ const server = new ResponsesHostServer({
         projectEndpoint,
         target: { modelDeployment: modelName },
       }),
-      name: process.env.SAMPLE_AGENT_NAME ?? 'hosted-toolbox-mcp-skills',
+      name: resolvedEnv('SAMPLE_AGENT_NAME') || 'hosted-toolbox-mcp-skills',
       instructions: 'You are a helpful assistant.',
       // Wiring the toolbox's tools connects the MCP session the skills provider
       // reads from. With `loadTools: false` this stays an empty list.
