@@ -19,7 +19,7 @@
 #
 #   azd ai toolbox create maf-skills-toolbox --from-file ./toolbox.yaml --no-prompt
 #
-# Set FOUNDRY_TOOLBOX_NAME to the toolbox name you chose (maf-skills-toolbox
+# Set TOOLBOX_NAME to the toolbox name you chose (maf-skills-toolbox
 # above). The agent derives the MCP endpoint from FOUNDRY_PROJECT_ENDPOINT and
 # that name, connects at runtime, and discovers these skills over MCP.
 description: Contoso Outdoors support skills served over MCP

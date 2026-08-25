@@ -17,5 +17,7 @@ environment_variables:
     value: ${AZURE_AI_MODEL_DEPLOYMENT_NAME}
   # The toolbox is registered in the project; the agent only needs its name.
   # (The Python sample takes a full TOOLBOX_ENDPOINT URL instead — see README.)
-  - name: FOUNDRY_TOOLBOX_NAME
-    value: ${FOUNDRY_TOOLBOX_NAME}
+  - name: TOOLBOX_NAME
+    value: ${TOOLBOX_NAME}
+  - name: SAMPLE_AGENT_NAME
+    value: ${SAMPLE_AGENT_NAME}

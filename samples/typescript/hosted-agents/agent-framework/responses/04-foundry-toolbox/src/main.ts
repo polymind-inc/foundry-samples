@@ -18,9 +18,9 @@ if (!projectEndpoint) {
   throw new Error('Set FOUNDRY_PROJECT_ENDPOINT to your Foundry project endpoint.');
 }
 
-const toolboxName = process.env.FOUNDRY_TOOLBOX_NAME ?? process.env.TOOLBOX_NAME;
+const toolboxName = process.env.TOOLBOX_NAME;
 if (!toolboxName) {
-  throw new Error('Set FOUNDRY_TOOLBOX_NAME to the toolbox registered in your Foundry project.');
+  throw new Error('Set TOOLBOX_NAME to the toolbox registered in your Foundry project.');
 }
 
 // FoundryToolbox reaches the toolbox's tools over its MCP endpoint, built from the project

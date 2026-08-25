@@ -12,6 +12,7 @@ This project is a **Microsoft Foundry hosted agent** — a containerized AI agen
 
 ```bash
 npm install        # Install dependencies
+cp .env.example .env # Configure the required values before running
 npm run dev        # Run locally on http://localhost:8088
 npm run typecheck  # Typecheck
 npm run build      # Build the self-contained dist/main.mjs bundle
@@ -27,6 +28,8 @@ curl -X POST localhost:8088/responses -H 'content-type: application/json' -d '{"
 > The `azd ai agent` code-deployment flow used by the Python samples supports Python and C# only; this TypeScript sample deploys to Foundry as a container built from the `Dockerfile`.
 
 ## Microsoft Foundry Skill
+
+This project was built with the microsoft-foundry skill. Before working on or answering questions about foundry agents, read the microsoft-foundry skill first.
 
 Install the **Microsoft Foundry Skill** for guided deployment, evaluation, and troubleshooting workflows.
 

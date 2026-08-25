@@ -18,9 +18,9 @@ if (!projectEndpoint) {
   throw new Error('Set FOUNDRY_PROJECT_ENDPOINT to your Foundry project endpoint.');
 }
 
-const toolboxName = process.env.FOUNDRY_TOOLBOX_NAME;
+const toolboxName = process.env.TOOLBOX_NAME;
 if (!toolboxName) {
-  throw new Error('Set FOUNDRY_TOOLBOX_NAME to the toolbox whose skills this agent should use.');
+  throw new Error('Set TOOLBOX_NAME to the toolbox whose skills this agent should use.');
 }
 
 // FoundryToolbox reaches the toolbox registered in the project over MCP,
@@ -44,7 +44,7 @@ const server = new ResponsesHostServer({
         projectEndpoint,
         target: { modelDeployment: modelName },
       }),
-      name: process.env.AGENT_NAME ?? 'hosted-toolbox-mcp-skills',
+      name: process.env.SAMPLE_AGENT_NAME ?? 'hosted-toolbox-mcp-skills',
       instructions: 'You are a helpful assistant.',
       // Wiring the toolbox's tools connects the MCP session the skills provider
       // reads from. With `loadTools: false` this stays an empty list.
