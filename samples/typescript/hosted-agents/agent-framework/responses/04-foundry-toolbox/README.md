@@ -8,9 +8,9 @@ Ported from the Python sample [`hosted-agents/agent-framework/responses/04-found
 
 The agent uses `FoundryChatClient` and is served via `ResponsesHostServer`, which exposes a REST API compatible with the OpenAI Responses container protocol v2.0.0. It connects to the toolbox's MCP endpoint via `FoundryToolbox`, which discovers and invokes the toolbox's tools over MCP at runtime, authenticates every request with the credential (`DefaultAzureCredential` by default), and forwards the platform per-request call-id.
 
-`FoundryToolbox` builds the endpoint from `FOUNDRY_PROJECT_ENDPOINT` and the toolbox name (`FOUNDRY_TOOLBOX_NAME`). The agent is built **lazily in an agent factory** (`agent: async () => ...`): `toolbox.getTools()` runs on the first request rather than at startup, so a briefly unreachable toolbox fails one request instead of keeping the container's `/readiness` probe red. See [src/main.ts](src/main.ts).
+`FoundryToolbox` builds the endpoint from `FOUNDRY_PROJECT_ENDPOINT` and the toolbox name (`TOOLBOX_NAME`). The agent is built **lazily in an agent factory** (`agent: async () => ...`): `toolbox.getTools()` runs on the first request rather than at startup, so a briefly unreachable toolbox fails one request instead of keeping the container's `/readiness` probe red. See [src/main.ts](src/main.ts).
 
-> Unlike the Python `FoundryToolbox`, the JS `FoundryToolbox` takes a toolbox **name**, not a raw `TOOLBOX_ENDPOINT` URL. Set `FOUNDRY_TOOLBOX_NAME` to the name you gave the toolbox when you created it (e.g. `agent-tools`).
+> Unlike the Python `FoundryToolbox`, the JS `FoundryToolbox` takes a toolbox **name**, not a raw `TOOLBOX_ENDPOINT` URL. Set `TOOLBOX_NAME` to the name you gave the toolbox when you created it (e.g. `agent-tools`). `FOUNDRY_*` names are reserved by the hosted platform and must not be declared in `agent.yaml`.
 
 ## Creating the toolbox
 
@@ -54,7 +54,7 @@ azd ai toolbox create agent-tools --from-file ./toolbox.yaml --project-endpoint 
 The first version becomes the default automatically. Set the toolbox name in your environment:
 
 ```bash
-FOUNDRY_TOOLBOX_NAME=agent-tools
+TOOLBOX_NAME=agent-tools
 ```
 
 You can also create a Foundry Toolbox in the Foundry portal — see the [toolbox documentation](https://learn.microsoft.com/en-us/azure/foundry/agents/how-to/tools/toolbox).

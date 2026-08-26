@@ -18,4 +18,4 @@ environment_variables:
   # Opts in to recording prompts, completions and tool arguments on spans. The TypeScript
   # framework honors the same switch as Python, so one env var configures a polyglot deployment.
   - name: ENABLE_SENSITIVE_DATA
-    value: 'true'
+    value: ${ENABLE_SENSITIVE_DATA}

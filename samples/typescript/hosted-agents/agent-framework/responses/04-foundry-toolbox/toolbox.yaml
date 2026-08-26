@@ -1,7 +1,7 @@
 # toolbox.yaml
 # Defines the toolbox this agent consumes. Create it once with:
 #   azd ai toolbox create agent-tools --from-file ./toolbox.yaml
-# After creating it, set the toolbox's name as the FOUNDRY_TOOLBOX_NAME environment
+# After creating it, set the toolbox's name as the TOOLBOX_NAME environment
 # variable. The agent builds the toolbox's MCP endpoint from FOUNDRY_PROJECT_ENDPOINT
 # and that name, and connects to it at runtime.
 description: Multiple MCP servers behind one endpoint

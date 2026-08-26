@@ -33,7 +33,7 @@ Each file includes a unique `*-CANARY-*` token the model is asked to echo, so a 
 
 ### Deviations from the Python sample
 
-- **Toolbox addressing:** the Python sample reads a full versioned MCP URL from `TOOLBOX_ENDPOINT`. agent-framework-js's `FoundryToolbox` instead takes the **toolbox name** (`FOUNDRY_TOOLBOX_NAME`) plus `FOUNDRY_PROJECT_ENDPOINT` and derives `<endpoint>/toolboxes/<name>/mcp?api-version=v1`, which always targets the toolbox's **default version** rather than a pinned one.
+- **Toolbox addressing:** the Python sample reads a full versioned MCP URL from `TOOLBOX_ENDPOINT`. agent-framework-js's `FoundryToolbox` instead takes the **toolbox name** (`TOOLBOX_NAME`) plus `FOUNDRY_PROJECT_ENDPOINT` and derives `<endpoint>/toolboxes/<name>/mcp?api-version=v1`, which always targets the toolbox's **default version** rather than a pinned one. `FOUNDRY_*` names are reserved by the hosted platform, so the user-configurable name deliberately uses no reserved prefix.
 - **Approvals:** Python's `disable_load_skill_approval=True` maps to `approvals: { loadSkill: 'never_require' }`. This sample additionally relaxes `readSkillResource`, matching the upstream agent-framework-js toolbox-skills example, so a multi-file (archive) skill would not stall the unattended host either. `run_skill_script`'s default approval is left alone — toolbox skills carry no runnable scripts.
 
 ## Prerequisites
@@ -74,7 +74,7 @@ azd ai toolbox create maf-skills-toolbox --from-file ./toolbox.yaml --no-prompt
 Put the toolbox name in your `.env` (see [.env.example](.env.example)):
 
 ```bash
-FOUNDRY_TOOLBOX_NAME=maf-skills-toolbox
+TOOLBOX_NAME=maf-skills-toolbox
 ```
 
 Unlike the Python sample, no endpoint URL needs to be copied — the agent derives it from `FOUNDRY_PROJECT_ENDPOINT` and the name.
@@ -115,7 +115,7 @@ Build the container image (a multi-stage build compiles the bundle inside Docker
 docker build -t toolbox-mcp-skills-agent .
 ```
 
-The `skills/` folder and `toolbox.yaml` are authoring inputs only and are not copied into the image — the running agent discovers everything it needs from the toolbox MCP endpoint. Make sure the skills and toolbox exist in the **same** Foundry project you deploy to, and that `FOUNDRY_TOOLBOX_NAME` is set for the hosted container (see [agent.yaml](agent.yaml)). The deployed agent's Managed Identity needs the **Foundry User** role on the Foundry project. For the full deployment guide, see [Deploy a hosted agent](https://learn.microsoft.com/en-us/azure/foundry/agents/how-to/deploy-hosted-agent).
+The `skills/` folder and `toolbox.yaml` are authoring inputs only and are not copied into the image — the running agent discovers everything it needs from the toolbox MCP endpoint. Make sure the skills and toolbox exist in the **same** Foundry project you deploy to, and that `TOOLBOX_NAME` is set for the hosted container (see [agent.yaml](agent.yaml)). The deployed agent's Managed Identity needs the **Foundry User** role on the Foundry project. For the full deployment guide, see [Deploy a hosted agent](https://learn.microsoft.com/en-us/azure/foundry/agents/how-to/deploy-hosted-agent).
 
 ## Environment variables
 
@@ -123,12 +123,12 @@ The `skills/` folder and `toolbox.yaml` are authoring inputs only and are not co
 |---|---|---|
 | `FOUNDRY_PROJECT_ENDPOINT` | yes | Foundry project endpoint; also the base the toolbox MCP endpoint is derived from. |
 | `AZURE_AI_MODEL_DEPLOYMENT_NAME` | yes | Model deployment name (`FOUNDRY_MODEL_NAME` also accepted). |
-| `FOUNDRY_TOOLBOX_NAME` | yes | Name of the skills toolbox registered in the project. Replaces the Python sample's `TOOLBOX_ENDPOINT` URL. |
-| `AGENT_NAME` | no | The agent's name. Defaults to `hosted-toolbox-mcp-skills`. |
+| `TOOLBOX_NAME` | yes | Name of the skills toolbox registered in the project. Replaces the Python sample's `TOOLBOX_ENDPOINT` URL. |
+| `SAMPLE_AGENT_NAME` | no | The agent's display name. Defaults to `hosted-toolbox-mcp-skills`. |
 
 ## Troubleshooting
 
-- **The agent reports no skills** — the toolbox is connected lazily on the first run. Verify `FOUNDRY_TOOLBOX_NAME` names a toolbox whose default version has both skills attached (`azd ai toolbox show maf-skills-toolbox`).
+- **The agent reports no skills** — the toolbox is connected lazily on the first run. Verify `TOOLBOX_NAME` names a toolbox whose default version has both skills attached (`azd ai toolbox show maf-skills-toolbox`).
 - **A skill is missing from the advertised list** — confirm the skill exists in the same Foundry project as the toolbox and that its `name:` front matter matches the name in `toolbox.yaml`.
 - **Skill-loading requests hang** — if you removed the `approvals` relaxation, `load_skill` defaults to requiring approval, and this unattended host has no one to answer it. Keep `loadSkill: 'never_require'`.
 

@@ -7,9 +7,9 @@
     "node": ">=24"
   },
   "scripts": {
-    "dev": "tsx --env-file-if-exists=.env src/main.ts",
+    "dev": "tsx --env-file=.env src/main.ts",
     "build": "tsdown",
-    "start": "node --env-file-if-exists=.env dist/main.mjs",
+    "start": "node --env-file=.env dist/main.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {

@@ -11,7 +11,7 @@ The agent itself is the basic `FoundryChatClient` agent served via `ResponsesHos
 ```yaml
 policies:
   - type: rai_policy
-    raiPolicyName: /subscriptions/<subscription-id>/resourceGroups/<resource-group>/providers/Microsoft.CognitiveServices/accounts/<account>/raiPolicies/<policy-name>
+    raiPolicyName: ${RAI_POLICY_RESOURCE_ID}
 ```
 
 The platform applies that policy to the agent at runtime. Omit the `policies` block entirely to deploy the agent without a content safety guardrail. `raiPolicyName` is **required** on every `rai_policy` entry. To use the built-in default policy, give its full ARM resource ID with `Microsoft.DefaultV2` as the policy name, scoped to the account that hosts your agent.
@@ -19,12 +19,12 @@ The platform applies that policy to the agent at runtime. Omit the `policies` bl
 For a conceptual overview, see [Add a content safety guardrail to a hosted agent](https://learn.microsoft.com/en-us/azure/foundry/agents/how-to/add-hosted-agent-guardrails).
 
 > [!WARNING]
-> Don't rely on deploy-time validation to catch a bad policy ID. On many subscriptions an agent that points at a policy that doesn't exist — including the `<subscription-id>`/`<policy-name>` placeholder that ships in [agent.yaml](agent.yaml) — deploys successfully and reports `active`, but **no content filtering is applied**: the guardrail fails open and harmful prompts reach the agent. Always replace the placeholder with a real policy ID and run [Verify the guardrail](#verify-the-guardrail) before you rely on this agent's content safety.
+> Don't rely on deploy-time validation to catch a bad policy ID. On many subscriptions an agent that points at a policy that doesn't exist deploys successfully and reports `active`, but **no content filtering is applied**: the guardrail fails open and harmful prompts reach the agent. Set `RAI_POLICY_RESOURCE_ID` in the active deployment environment to a real policy ID and run [Verify the guardrail](#verify-the-guardrail) before you rely on this agent's content safety.
 
 ## Prerequisites
 
 - Node.js >= 24
-- An [Azure AI Foundry project](https://learn.microsoft.com/en-us/azure/ai-foundry/) with a model deployment
+- A [Microsoft Foundry project](https://learn.microsoft.com/en-us/azure/foundry/) with a model deployment
 - Azure CLI signed in (`az login`) — auth uses `DefaultAzureCredential`
 - An RAI policy created on your Foundry resource, and its full ARM resource ID. To create one, see [Configure guardrails and controls](https://learn.microsoft.com/en-us/azure/foundry/guardrails/how-to-create-guardrails). The ARM resource ID has this form:
 
@@ -50,7 +50,9 @@ curl -X POST localhost:8088/responses -H 'content-type: application/json' -d '{"
 
 ## Deploy to Foundry
 
-Set `raiPolicyName` in [agent.yaml](agent.yaml) to your RAI policy's full ARM resource ID (the full ID, not the bare policy name). Then build the self-contained bundle and the container image, and deploy with your preferred flow (Foundry portal, VS Code Foundry Toolkit, or `az`):
+Set `RAI_POLICY_RESOURCE_ID` in the active deployment environment to your RAI policy's full ARM resource ID (the full ID, not the bare policy name). For example, an `azd` deployment resolves the `${RAI_POLICY_RESOURCE_ID}` placeholder in [agent.yaml](agent.yaml) from the selected azd environment, commonly stored under `.azure/<environment>/.env`. This is separate from the sample-local `.env` file used by `npm run dev` and `npm start`.
+
+Then build the self-contained bundle and the container image, and deploy with your preferred flow (Foundry portal, VS Code Foundry Toolkit, or `az`):
 
 ```bash
 docker build -t content-safety-guardrail-agent .
@@ -76,7 +78,7 @@ A prompt that passes the policy returns `HTTP 200` with the agent's response. A 
 
 If a violating prompt isn't blocked, check in this order:
 
-1. `raiPolicyName` names a policy that **actually exists** on your account. A nonexistent policy (including the shipped placeholder) fails open with no error. List the policies on your account and confirm the final segment of `raiPolicyName` matches one of them:
+1. `RAI_POLICY_RESOURCE_ID` names a policy that **actually exists** on your account. A nonexistent policy fails open with no error. List the policies on your account and confirm the final segment of the configured ID matches one of them:
 
    ```bash
    az rest --method get \

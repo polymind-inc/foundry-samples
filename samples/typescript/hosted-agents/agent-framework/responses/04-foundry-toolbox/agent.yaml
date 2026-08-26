@@ -15,5 +15,5 @@ resources:
 environment_variables:
   - name: AZURE_AI_MODEL_DEPLOYMENT_NAME
     value: ${AZURE_AI_MODEL_DEPLOYMENT_NAME}
-  - name: FOUNDRY_TOOLBOX_NAME
-    value: ${FOUNDRY_TOOLBOX_NAME}
+  - name: TOOLBOX_NAME
+    value: ${TOOLBOX_NAME}
