@@ -12,9 +12,9 @@ Ported from the Python sample [`hosted-agents/agent-framework/responses/13-found
 2. **Searches for contextual memories** matching the current user message and injects them into the model context.
 3. **Queues a store update** with new facts inferred from the conversation.
 
-After each successful run, an Agent Framework middleware calls `FoundryMemoryProvider.whenUpdatesCompleted()` to wait for the queued extraction. This makes the new memories searchable before the next request without adding sample-specific polling logic or environment variables.
+Memory extraction is asynchronous. Like the .NET hosted-agent sample, this agent does not block every response while a queued update is processed. Callers that immediately verify a newly taught memory should allow time for extraction to complete.
 
-Memories are scoped per end user with `hostedUserScope()`: the hosting infrastructure injects the end-user id on every request. For local requests without that header, `MEMORY_USER_ID` supplies a stable development scope from `.env`. This is the TypeScript counterpart of the Python sample's `scope="{{$userId}}"` placeholder.
+Memories are scoped per end user with `hostedUserScope()`: the hosting infrastructure injects the end-user id on every request. For local requests without that header, `MEMORY_USER_ID` supplies a stable development scope from `.env`. This is the TypeScript equivalent of .NET's `HostedFoundryMemoryProviderScopes.PerUser()`: it resolves the platform-injected end-user id to an explicit Memory scope instead of relying on the service-side `{{$userId}}` substitution used by the Python sample.
 
 The agent uses `FoundryChatClient` and is served via `ResponsesHostServer`, which exposes a REST API compatible with the OpenAI Responses container protocol v2.0.0. `serve` binds `0.0.0.0:${PORT:-8088}` — the address the platform's readiness probe expects. See [src/main.ts](src/main.ts).
 
@@ -68,10 +68,12 @@ Invoke the local agent from another terminal:
 
 ```bash
 curl -X POST localhost:8088/responses -H 'content-type: application/json' -d '{"input":"Hi, my name is Alex and I am vegetarian."}'
+# Memory extraction is asynchronous; wait before verifying a newly taught memory.
+sleep 30
 curl -X POST localhost:8088/responses -H 'content-type: application/json' -d '{"input":"Do you remember my name and what I like to eat?"}'
 ```
 
-Each successful response waits for asynchronous extraction through the Agent Framework's `whenUpdatesCompleted()` API. This mirrors the explicit `WhenUpdatesCompletedAsync()` calls in the .NET Foundry Memory sample and avoids relying on an arbitrary sleep before the next request.
+`FoundryMemoryProvider.whenUpdatesCompleted()` is available for deterministic tests or one-shot workflows that must verify an update immediately, but the hosted server intentionally leaves extraction off the request's critical path.
 
 The sample fails fast when the store cannot be read or updated instead of silently behaving like a stateless agent. For local requests, `MEMORY_USER_ID` from `.env` is used when no `x-agent-user-id` header is present.
 
