@@ -11,7 +11,7 @@
  * variable.
  */
 
-import { Agent, agentMiddleware } from '@polymind-inc/agent-framework';
+import { Agent } from '@polymind-inc/agent-framework';
 import { serve } from '@polymind-inc/agent-framework/agentserver/node';
 import { FoundryChatClient, FoundryMemoryProvider } from '@polymind-inc/agent-framework/foundry';
 import { hostedUserScope, ResponsesHostServer } from '@polymind-inc/agent-framework/foundry/hosting';
@@ -57,7 +57,8 @@ function resolveMemoryScope(): string {
     if (localMemoryUserId) return localMemoryUserId;
     throw new Error(
       'No hosted end-user id is available. Set MEMORY_USER_ID in .env for local runs, ' +
-        'or send x-agent-user-id with the request.',
+        'or, for local testing only, send x-agent-user-id directly to the local server. ' +
+        'In Foundry, the platform injects this header.',
       { cause: error },
     );
   }
@@ -72,27 +73,6 @@ const memoryProvider = new FoundryMemoryProvider({
   failureMode: 'throw',
 });
 
-// Foundry extracts memories asynchronously. Match the .NET sample's explicit
-// WhenUpdatesCompletedAsync calls by waiting after each successful agent run.
-// Streaming runs finish later, so register the wait against their final result.
-const waitForMemoryUpdates = agentMiddleware(
-  async (ctx, next) => {
-    if (ctx.stream) {
-      ctx.onResult(async (response) => {
-        await memoryProvider.whenUpdatesCompleted(ctx.signal === undefined ? {} : { signal: ctx.signal });
-        return response;
-      });
-    }
-
-    await next();
-
-    if (!ctx.stream) {
-      await memoryProvider.whenUpdatesCompleted(ctx.signal === undefined ? {} : { signal: ctx.signal });
-    }
-  },
-  { name: 'waitForFoundryMemoryUpdates' },
-);
-
 const agent = new Agent({
   client: new FoundryChatClient({
     projectEndpoint,
@@ -104,7 +84,6 @@ const agent = new Agent({
     'automatically provided to you in the system context. Use them when ' +
     'answering, and acknowledge when you are relying on remembered facts.',
   contextProviders: [memoryProvider],
-  middleware: [waitForMemoryUpdates],
   // History will be managed by the hosting infrastructure, thus there
   // is no need to store history by the service. Learn more at:
   // https://developers.openai.com/api/reference/resources/responses/methods/create
