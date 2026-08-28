@@ -1,9 +1,10 @@
 // Ported to TypeScript from the Microsoft Foundry samples
 // (https://github.com/microsoft-foundry/foundry-samples), MIT License.
 
+import { DefaultAzureCredential } from '@azure/identity';
 import { Agent } from '@polymind-inc/agent-framework';
 import { serve } from '@polymind-inc/agent-framework/agentserver/node';
-import { FoundryChatClient } from '@polymind-inc/agent-framework/foundry';
+import { FoundryChatClient, FoundryProject } from '@polymind-inc/agent-framework/foundry';
 import { FoundryToolbox, ResponsesHostServer } from '@polymind-inc/agent-framework/foundry/hosting';
 
 const modelName = process.env.AZURE_AI_MODEL_DEPLOYMENT_NAME ?? process.env.FOUNDRY_MODEL_NAME;
@@ -17,6 +18,7 @@ const projectEndpoint = process.env.FOUNDRY_PROJECT_ENDPOINT;
 if (!projectEndpoint) {
   throw new Error('Set FOUNDRY_PROJECT_ENDPOINT to your Foundry project endpoint.');
 }
+const project = new FoundryProject(projectEndpoint, new DefaultAzureCredential());
 
 const toolboxName = process.env.TOOLBOX_NAME;
 if (!toolboxName) {
@@ -27,8 +29,8 @@ if (!toolboxName) {
 // A2A executor agent through the project's `RemoteA2A` connection.
 // `FoundryToolbox` reaches it over the toolbox MCP endpoint
 // ({project_endpoint}/toolboxes/{name}/mcp?api-version=v1) and authenticates
-// each call with DefaultAzureCredential.
-const toolbox = new FoundryToolbox({ name: toolboxName, projectEndpoint });
+// each call with the credential shared by `project`.
+const toolbox = new FoundryToolbox({ name: toolboxName, project });
 
 // An async agent factory keeps startup lazy: the toolbox's MCP `tools/list`
 // runs on the first request rather than before the HTTP server is bound.
@@ -39,8 +41,8 @@ const server = new ResponsesHostServer({
   agent: async () =>
     new Agent({
       client: new FoundryChatClient({
-        projectEndpoint,
-        target: { modelDeployment: modelName },
+        project,
+        target: { model: modelName },
       }),
       instructions:
         'You are a friendly concierge agent. When the user asks a question that ' +

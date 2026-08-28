@@ -6,10 +6,11 @@ import { existsSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
+import { DefaultAzureCredential } from '@azure/identity';
 import { Agent, cacheSkills, skillsProvider } from '@polymind-inc/agent-framework';
 import type { SkillScriptArguments } from '@polymind-inc/agent-framework';
 import { serve } from '@polymind-inc/agent-framework/agentserver/node';
-import { FoundryChatClient } from '@polymind-inc/agent-framework/foundry';
+import { FoundryChatClient, FoundryProject } from '@polymind-inc/agent-framework/foundry';
 import { ResponsesHostServer } from '@polymind-inc/agent-framework/foundry/hosting';
 import { directorySkillsSource } from '@polymind-inc/agent-framework/node';
 import type { DirectorySkillScript } from '@polymind-inc/agent-framework/node';
@@ -27,6 +28,7 @@ const projectEndpoint = process.env.FOUNDRY_PROJECT_ENDPOINT;
 if (!projectEndpoint) {
   throw new Error('Set FOUNDRY_PROJECT_ENDPOINT to your Foundry project endpoint.');
 }
+const project = new FoundryProject(projectEndpoint, new DefaultAzureCredential());
 
 /**
  * Finds the skills directory in every place this sample runs from:
@@ -112,8 +114,8 @@ const skills = cacheSkills(
 
 const agent = new Agent({
   client: new FoundryChatClient({
-    projectEndpoint,
-    target: { modelDeployment: modelName },
+    project,
+    target: { model: modelName },
   }),
   instructions:
     'You are a helpful travel planning assistant. When a user asks for a PDF ' +

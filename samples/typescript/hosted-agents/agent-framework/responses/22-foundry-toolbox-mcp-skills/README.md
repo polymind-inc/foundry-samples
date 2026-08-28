@@ -10,7 +10,7 @@ This sample is **self-contained**: it ships the `SKILL.md` sources under [skills
 
 [src/main.ts](src/main.ts):
 
-1. Constructs a `FoundryToolbox({ projectEndpoint, name, loadTools: false })`. The toolbox derives its MCP endpoint from the project endpoint and the toolbox name, authenticates every request with `DefaultAzureCredential`, and forwards the platform per-request call-id. `loadTools: false` keeps the toolbox's tools hidden so only its Agent Skills are surfaced — `getTools()` answers with an empty list without ever asking the gateway.
+1. Constructs a shared `FoundryProject` with the project endpoint and `DefaultAzureCredential`, then passes it to `FoundryToolbox({ project, name, loadTools: false })`. The toolbox derives its MCP endpoint from the project and its name, authenticates every request through the shared project, and forwards the platform per-request call-id. `loadTools: false` keeps the toolbox's tools hidden so only its Agent Skills are surfaced — `getTools()` answers with an empty list without ever asking the gateway.
 2. Builds the agent through an **async factory** passed to `ResponsesHostServer`, so construction-time work (and any consent-gated refusal) happens on the first request instead of keeping `/readiness` red at startup.
 3. Wires `tools: await toolbox.getTools()` **and** `contextProviders: [toolbox.asSkillsProvider(...)]`. The provider discovers skills from the well-known `skill://index.json` resource on the toolbox's MCP session and fetches `SKILL.md` bodies on demand via `resources/read`.
 4. Relaxes `load_skill` approval to `never_require` — the analogue of Python's `disable_load_skill_approval=True`. This unattended, session-less host has no one to answer an approval request mid-turn.

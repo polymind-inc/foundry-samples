@@ -14,9 +14,9 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@azure/identity": "^4.13.1",
+    "@azure/identity": "^4.13.2",
     "@azure/search-documents": "^13.0.0",
-    "@polymind-inc/agent-framework": "^0.3.0"
+    "@polymind-inc/agent-framework": "^0.4.0"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",

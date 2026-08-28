@@ -1,9 +1,10 @@
 // Ported to TypeScript from the Microsoft Foundry samples
 // (https://github.com/microsoft-foundry/foundry-samples), MIT License.
 
+import { DefaultAzureCredential } from '@azure/identity';
 import { Agent } from '@polymind-inc/agent-framework';
 import { serve } from '@polymind-inc/agent-framework/agentserver/node';
-import { FoundryChatClient } from '@polymind-inc/agent-framework/foundry';
+import { FoundryChatClient, FoundryProject } from '@polymind-inc/agent-framework/foundry';
 import { FoundryToolbox, ResponsesHostServer } from '@polymind-inc/agent-framework/foundry/hosting';
 
 /**
@@ -31,6 +32,7 @@ const projectEndpoint = resolvedEnv('FOUNDRY_PROJECT_ENDPOINT');
 if (!projectEndpoint) {
   throw new Error('Set FOUNDRY_PROJECT_ENDPOINT to your Foundry project endpoint.');
 }
+const project = new FoundryProject(projectEndpoint, new DefaultAzureCredential());
 
 const toolboxName = resolvedEnv('TOOLBOX_NAME');
 if (!toolboxName) {
@@ -38,12 +40,12 @@ if (!toolboxName) {
 }
 
 // FoundryToolbox reaches the toolbox registered in the project over MCP,
-// authenticates every request with DefaultAzureCredential, and forwards the
+// authenticates every request with the credential shared by `project`, and forwards the
 // platform per-request call-id. `loadTools: false` keeps the toolbox's tools
 // hidden so only its Agent Skills (SEP-2640) are surfaced — `getTools()` then
 // answers with an empty list without ever asking the gateway.
 const toolbox = new FoundryToolbox({
-  projectEndpoint,
+  project,
   name: toolboxName,
   loadTools: false,
 });
@@ -55,8 +57,8 @@ const server = new ResponsesHostServer({
   agent: async () =>
     new Agent({
       client: new FoundryChatClient({
-        projectEndpoint,
-        target: { modelDeployment: modelName },
+        project,
+        target: { model: modelName },
       }),
       name: resolvedEnv('SAMPLE_AGENT_NAME') || 'hosted-toolbox-mcp-skills',
       instructions: 'You are a helpful assistant.',
