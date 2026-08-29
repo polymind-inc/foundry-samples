@@ -1,10 +1,11 @@
 // Ported to TypeScript from the Microsoft Foundry samples
 // (https://github.com/microsoft-foundry/foundry-samples), MIT License.
 
+import { DefaultAzureCredential } from '@azure/identity';
 import { Agent, tool } from '@polymind-inc/agent-framework';
 import { serve } from '@polymind-inc/agent-framework/agentserver/node';
 import { setupHostObservability } from '@polymind-inc/agent-framework/agentserver/observability';
-import { FoundryChatClient } from '@polymind-inc/agent-framework/foundry';
+import { FoundryChatClient, FoundryProject } from '@polymind-inc/agent-framework/foundry';
 import { ResponsesHostServer } from '@polymind-inc/agent-framework/foundry/hosting';
 import { z } from 'zod';
 
@@ -45,6 +46,7 @@ const projectEndpoint = process.env.FOUNDRY_PROJECT_ENDPOINT;
 if (!projectEndpoint) {
   throw new Error('Set FOUNDRY_PROJECT_ENDPOINT to your Foundry project endpoint.');
 }
+const project = new FoundryProject(projectEndpoint, new DefaultAzureCredential());
 
 // Configure the OTel pipeline for hosted operation. `serve` would do this automatically; calling
 // it explicitly lets the sample report which export paths are live. Exporters activate from the
@@ -61,8 +63,8 @@ console.log(
 
 const agent = new Agent({
   client: new FoundryChatClient({
-    projectEndpoint,
-    target: { modelDeployment: modelName },
+    project,
+    target: { model: modelName },
   }),
   instructions: 'You are a friendly assistant. Keep your answers brief.',
   tools: [getWeather, getCurrentLocation],

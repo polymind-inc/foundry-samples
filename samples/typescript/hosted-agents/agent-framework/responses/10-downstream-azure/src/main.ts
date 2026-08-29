@@ -1,9 +1,10 @@
 // Ported to TypeScript from the Microsoft Foundry samples
 // (https://github.com/microsoft-foundry/foundry-samples), MIT License.
 
+import { DefaultAzureCredential } from '@azure/identity';
 import { Agent } from '@polymind-inc/agent-framework';
 import { serve } from '@polymind-inc/agent-framework/agentserver/node';
-import { FoundryChatClient } from '@polymind-inc/agent-framework/foundry';
+import { FoundryChatClient, FoundryProject } from '@polymind-inc/agent-framework/foundry';
 import { ResponsesHostServer } from '@polymind-inc/agent-framework/foundry/hosting';
 
 import { ALL_TOOLS } from './tools/index.js';
@@ -26,11 +27,12 @@ const projectEndpoint = process.env.FOUNDRY_PROJECT_ENDPOINT;
 if (!projectEndpoint) {
   throw new Error('Set FOUNDRY_PROJECT_ENDPOINT to your Foundry project endpoint.');
 }
+const project = new FoundryProject(projectEndpoint, new DefaultAzureCredential());
 
 const agent = new Agent({
   client: new FoundryChatClient({
-    projectEndpoint,
-    target: { modelDeployment: modelName },
+    project,
+    target: { model: modelName },
   }),
   instructions:
     'You are an assistant that performs data-plane operations on two ' +

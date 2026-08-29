@@ -11,9 +11,14 @@
  * variable.
  */
 
+import { DefaultAzureCredential } from '@azure/identity';
 import { Agent } from '@polymind-inc/agent-framework';
 import { serve } from '@polymind-inc/agent-framework/agentserver/node';
-import { FoundryChatClient, FoundryMemoryProvider } from '@polymind-inc/agent-framework/foundry';
+import {
+  FoundryChatClient,
+  FoundryMemoryProvider,
+  FoundryProject,
+} from '@polymind-inc/agent-framework/foundry';
 import { hostedUserScope, ResponsesHostServer } from '@polymind-inc/agent-framework/foundry/hosting';
 
 /**
@@ -41,6 +46,7 @@ const projectEndpoint = resolvedEnv('FOUNDRY_PROJECT_ENDPOINT');
 if (!projectEndpoint) {
   throw new Error('Set FOUNDRY_PROJECT_ENDPOINT to your Foundry project endpoint.');
 }
+const project = new FoundryProject(projectEndpoint, new DefaultAzureCredential());
 
 const memoryStoreName = resolvedEnv('MEMORY_STORE_NAME');
 if (!memoryStoreName) {
@@ -65,7 +71,7 @@ function resolveMemoryScope(): string {
 }
 
 const memoryProvider = new FoundryMemoryProvider({
-  projectEndpoint,
+  project,
   memoryStoreName,
   scope: resolveMemoryScope,
   // A memory sample must not silently degrade to a stateless agent. Surface
@@ -75,8 +81,8 @@ const memoryProvider = new FoundryMemoryProvider({
 
 const agent = new Agent({
   client: new FoundryChatClient({
-    projectEndpoint,
-    target: { modelDeployment: modelName },
+    project,
+    target: { model: modelName },
   }),
   instructions:
     'You are a helpful assistant that remembers facts the user has shared ' +

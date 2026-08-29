@@ -6,7 +6,7 @@ Ported from the Python sample [`hosted-agents/agent-framework/responses/04-found
 
 ## How it works
 
-The agent uses `FoundryChatClient` and is served via `ResponsesHostServer`, which exposes a REST API compatible with the OpenAI Responses container protocol v2.0.0. It connects to the toolbox's MCP endpoint via `FoundryToolbox`, which discovers and invokes the toolbox's tools over MCP at runtime, authenticates every request with the credential (`DefaultAzureCredential` by default), and forwards the platform per-request call-id.
+The agent uses `FoundryChatClient` and is served via `ResponsesHostServer`, which exposes a REST API compatible with the OpenAI Responses container protocol v2.0.0. A shared `FoundryProject` holds the project endpoint and `DefaultAzureCredential` for both the chat client and `FoundryToolbox`. The toolbox discovers and invokes tools over MCP at runtime and forwards the platform per-request call-id.
 
 `FoundryToolbox` builds the endpoint from `FOUNDRY_PROJECT_ENDPOINT` and the toolbox name (`TOOLBOX_NAME`). The agent is built **lazily in an agent factory** (`agent: async () => ...`): `toolbox.getTools()` runs on the first request rather than at startup, so a briefly unreachable toolbox fails one request instead of keeping the container's `/readiness` probe red. See [src/main.ts](src/main.ts).
 

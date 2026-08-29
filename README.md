@@ -2,6 +2,8 @@
 
 TypeScript ports of the [Microsoft Foundry samples](https://github.com/microsoft-foundry/foundry-samples) built on the TypeScript implementation of the [Agent Framework](https://github.com/microsoft/agent-framework) — [`@polymind-inc/agent-framework`](https://www.npmjs.com/package/@polymind-inc/agent-framework) (agent-framework-js).
 
+The samples target Agent Framework for TypeScript 0.4.0.
+
 Only samples whose features are implemented in agent-framework-js are ported; see the [portability matrix](#portability-matrix) below.
 
 ## Prerequisites

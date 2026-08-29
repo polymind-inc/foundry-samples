@@ -13,10 +13,10 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@azure/identity": "^4.13.1",
+    "@azure/identity": "^4.13.2",
     "@azure/service-bus": "^7.9.5",
     "@azure/storage-blob": "^12.33.0",
-    "@polymind-inc/agent-framework": "^0.3.0",
+    "@polymind-inc/agent-framework": "^0.4.0",
     "zod": "^4.4.3"
   },
   "devDependencies": {

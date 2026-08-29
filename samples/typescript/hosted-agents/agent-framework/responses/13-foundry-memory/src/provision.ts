@@ -31,9 +31,10 @@
  * on the Foundry project scope.
  */
 
+import { DefaultAzureCredential } from '@azure/identity';
 import { AgentSession, message } from '@polymind-inc/agent-framework';
 import type { ProviderRunContext } from '@polymind-inc/agent-framework';
-import { FoundryMemoryProvider } from '@polymind-inc/agent-framework/foundry';
+import { FoundryMemoryProvider, FoundryProject } from '@polymind-inc/agent-framework/foundry';
 
 function requireEnv(name: string): string {
   const value = process.env[name];
@@ -47,6 +48,7 @@ const projectEndpoint = requireEnv('FOUNDRY_PROJECT_ENDPOINT');
 const memoryStoreName = requireEnv('MEMORY_STORE_NAME');
 const chatModel = requireEnv('AZURE_AI_MODEL_DEPLOYMENT_NAME');
 const embeddingModel = requireEnv('AZURE_AI_EMBEDDING_MODEL_DEPLOYMENT_NAME');
+const project = new FoundryProject(projectEndpoint, new DefaultAzureCredential());
 
 // The scope is irrelevant to provisioning — no run happens here — but it is a
 // required part of the provider's contract, so the script names the user it
@@ -54,7 +56,7 @@ const embeddingModel = requireEnv('AZURE_AI_EMBEDDING_MODEL_DEPLOYMENT_NAME');
 const resetIndex = process.argv.indexOf('--reset');
 const resetUser = resetIndex === -1 ? undefined : process.argv[resetIndex + 1];
 const memory = new FoundryMemoryProvider({
-  projectEndpoint,
+  project,
   memoryStoreName,
   scope: resetUser ?? 'provisioning',
   failureMode: 'throw',
